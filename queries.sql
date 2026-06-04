@@ -4,8 +4,8 @@ CREATE TABLE table_place (
   localization_place  POINT,
   address_place       VARCHAR(100),
   cep_place           VARCHAR(9),
-  hour_open           TIME,
-  hour_close          TIME,
+  hour_open_place     TIME,
+  hour_place          TIME,
   date_insert_place   DATETIME DEFAULT CURRENT_TIMESTAMP 
 );
 
