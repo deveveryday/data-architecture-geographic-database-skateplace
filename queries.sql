@@ -9,10 +9,10 @@ CREATE TABLE table_place (
   date_insert_place   DATETIME DEFAULT CURRENT_TIMESTAMP 
 );
 
-CREATE TABLE Table_Facility (
+CREATE TABLE table_facility (
   id_facility           INT PRIMARY KEY AUTO_INCREMENT,
-  title_facility        VARCHAR(50),
-  description_facility  VARCHAR(50)
+  title_facility        VARCHAR(30),
+  description_facility  VARCHAR(100)
 );
 
 CREATE TABLE table_place_facility (
@@ -23,6 +23,17 @@ CREATE TABLE table_place_facility (
 );
 
 -- ----------------------------------------------------
+INSERT INTO table_facility
+  (title_facility, description_facility)
+VALUES
+  ('Banheiro', 'Toilet com lavabo'),
+  ('Estacionamento', 'Vagas gratuitas durante horário de funcionamento'),
+  ('Lanchonete', 'Lanchonete terceirizada'),
+  ('Iluminação', 'Pista iluminada'),
+  ('Cobertura', 'Pista fechada');
+  
+  
+
 
 INSERT INTO table_place
   (name_place, address_place, localization_place, cep_place)
@@ -97,9 +108,44 @@ VALUES
  '03128-140');
  
  
+ -- ----------------------------------------------------
+
+SELECT @id_wc:=id_facility
+FROM table_facility
+WHERE title_facility = 'Banheiro';
+ 
+SELECT @id_parkinglot:=id_facility
+FROM table_facility
+WHERE title_facility = 'Estacionamento';
+ 
+SELECT @id_bar:=id_facility
+FROM table_facility
+WHERE title_facility = 'Lanchonete';
+ 
+SELECT @id_light:=id_facility
+FROM table_facility
+WHERE title_facility = 'Iluminação';
+ 
+SELECT @id_roof:=id_facility
+FROM table_facility
+WHERE title_facility = 'Cobertura';
+
+-- ----------------------------------------------------
+
+INSERT INTO table_place_facility
+  (id_place, id_facility)
+VALUES
+  (4, @id_light),
+  (5, @id_light),
+  (10, @id_parkinglot),
+  (10, @id_wc),
+  (10, @id_bar),
+  (10, @id_light);
+
+ 
  -- Distância do Senai
  SELECT
-    id_place,
+    table_place.id_place,
     name_place,
     ROUND(
         ST_Distance_Sphere(
@@ -109,6 +155,37 @@ VALUES
         2
     ) AS distance_km
 FROM table_place
+LEFT JOIN table_place_facility
+  ON table_place.id_place = table_place_facility.id_place
+LEFT JOIN table_facility
+  ON table_facility.id_facility = table_place_facility.id_facility
+ORDER BY distance_km;
+
+ -- Distância do Senai incluindo o que a pista oferece
+SELECT
+    tp.id_place,
+    tp.name_place,
+    ROUND(
+        ST_Distance_Sphere(
+            tp.localization_place,
+            POINT(-46.7243107, -23.648051)
+        ) / 1000,
+        2
+    ) AS distance_km,
+    GROUP_CONCAT(
+        tf.title_facility
+        ORDER BY tf.title_facility
+        SEPARATOR ', '
+    ) AS facilities
+FROM table_place tp
+LEFT JOIN table_place_facility tpf
+    ON tp.id_place = tpf.id_place
+LEFT JOIN table_facility tf
+    ON tf.id_facility = tpf.id_facility
+GROUP BY
+    tp.id_place,
+    tp.name_place,
+    tp.localization_place
 ORDER BY distance_km;
 
 -- Distância do registro id_place = 1
