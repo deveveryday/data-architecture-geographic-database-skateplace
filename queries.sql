@@ -95,6 +95,38 @@ VALUES
  'Rua José Zappi, 236 - Vila Prudente',
   ST_GeomFromText('POINT(-23.5792449 -46.5871144)'),
  '03128-140');
+ 
+ 
+ -- Distância do Senai
+ SELECT
+    id_place,
+    name_place,
+    ROUND(
+        ST_Distance_Sphere(
+            localization_place,
+            POINT(-23.648051,-46.7243107)
+        ) / 1000,
+        2
+    ) AS distance_km
+FROM table_place
+ORDER BY distance_km;
 
+-- Distância do registro id_place = 1
+SELECT
+    p2.id_place,
+    p2.name_place,
+    ROUND(
+        ST_Distance_Sphere(
+            p1.localization_place,
+            p2.localization_place
+        ) / 1000,
+        2
+    ) AS distance_km
+FROM table_place p1
+JOIN table_place p2
+    ON p1.id_place <> p2.id_place
+WHERE p1.id_place = 1
+ORDER BY distance_km
+LIMIT 5;
 
 
