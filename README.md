@@ -2,6 +2,7 @@
 ### Arquitetura de Dados
 
 Vídeo falando sobre o assunto: https://www.youtube.com/watch?v=sIZ8Yf0Mqkw
+
 canva: https://canva.link/jucajwajfju1mp8
 
 
